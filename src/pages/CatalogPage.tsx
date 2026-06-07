@@ -1,18 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Typography, Modal, Form, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { mockProducts } from '../utils/mockData';
 import type { Product } from '../utils/mockData';
 import { ProductTable } from '../components/catalog/ProductTable';
 import { ProductModalForm } from '../components/catalog/ProductModalForm';
+import { catalogService } from '../services/catalogService';
 
 const { Title } = Typography;
 
 export const CatalogPage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const data = await catalogService.getProducts();
+      setProducts(data);
+    } catch (error) {
+      message.error("Lỗi khi tải danh sách sản phẩm!");
+    }
+  };
 
   const handleAdd = () => {
     setEditingProduct(null);
@@ -33,27 +46,33 @@ export const CatalogPage: React.FC = () => {
       okText: 'Xóa',
       okType: 'danger',
       cancelText: 'Hủy',
-      onOk: () => {
-        setProducts(products.filter(p => p.id !== id));
-        message.success('Đã gửi sự kiện xóa sản phẩm qua RabbitMQ!');
+      onOk: async () => {
+        try {
+          await catalogService.deleteProduct(id);
+          message.success('Đã xóa sản phẩm thành công!');
+          fetchProducts();
+        } catch (error) {
+          message.error('Lỗi khi xóa sản phẩm!');
+        }
       }
     });
   };
 
   const handleOk = () => {
-    form.validateFields().then(values => {
-      if (editingProduct) {
-        setProducts(products.map(p => p.id === editingProduct.id ? { ...p, ...values } : p));
-        message.success(`Đã gửi sự kiện cập nhật sản phẩm [${editingProduct.id}] qua RabbitMQ!`);
-      } else {
-        const newProduct = {
-          ...values,
-          id: `P${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-        };
-        setProducts([...products, newProduct]);
-        message.success('Đã gửi sự kiện tạo mới sản phẩm qua RabbitMQ!');
+    form.validateFields().then(async values => {
+      try {
+        if (editingProduct) {
+          await catalogService.updateProduct(editingProduct.id, values);
+          message.success('Đã cập nhật sản phẩm thành công!');
+        } else {
+          await catalogService.createProduct(values);
+          message.success('Đã tạo mới sản phẩm thành công!');
+        }
+        setIsModalVisible(false);
+        fetchProducts();
+      } catch (error) {
+        message.error('Lỗi khi lưu sản phẩm!');
       }
-      setIsModalVisible(false);
     });
   };
 
