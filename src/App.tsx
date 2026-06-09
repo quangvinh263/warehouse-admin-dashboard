@@ -3,10 +3,13 @@ import { Routes, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { AuthLayout } from './components/layout/AuthLayout';
+import { StoreLayout } from './components/store/StoreLayout';
+import { CartProvider } from './components/store/CartContext';
 import { DashboardPage } from './pages/DashboardPage';
 import { CatalogPage } from './pages/CatalogPage';
 import { WarehousePage } from './pages/WarehousePage';
 import { OrderPage } from './pages/OrderPage';
+import { StorePage } from './pages/StorePage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { OtpPage } from './pages/auth/OtpPage';
@@ -28,18 +31,23 @@ const App: React.FC = () => {
         }
       }}
     >
-      <Routes>
-        {/* Auth Routes */}
-        <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-        <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
-        <Route path="/otp" element={<AuthLayout><OtpPage /></AuthLayout>} />
+      <CartProvider>
+        <Routes>
+          {/* Auth Routes */}
+          <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+          <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
+          <Route path="/otp" element={<AuthLayout><OtpPage /></AuthLayout>} />
 
-        {/* Dashboard / Admin Routes */}
-        <Route path="/" element={<AdminLayout><DashboardPage /></AdminLayout>} />
-        <Route path="/catalog" element={<AdminLayout><CatalogPage /></AdminLayout>} />
-        <Route path="/warehouse" element={<AdminLayout><WarehousePage /></AdminLayout>} />
-        <Route path="/order" element={<AdminLayout><OrderPage /></AdminLayout>} />
-      </Routes>
+          {/* Storefront Routes (User UI) */}
+          <Route path="/shop" element={<StoreLayout><StorePage /></StoreLayout>} />
+
+          {/* Dashboard / Admin Routes */}
+          <Route path="/" element={<AdminLayout><DashboardPage /></AdminLayout>} />
+          <Route path="/catalog" element={<AdminLayout><CatalogPage /></AdminLayout>} />
+          <Route path="/warehouse" element={<AdminLayout><WarehousePage /></AdminLayout>} />
+          <Route path="/order" element={<AdminLayout><OrderPage /></AdminLayout>} />
+        </Routes>
+      </CartProvider>
     </ConfigProvider>
   );
 };

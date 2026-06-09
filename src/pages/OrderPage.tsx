@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
-import { Typography, Card } from 'antd';
-import { mockOrders } from '../utils/mockData';
-import type { Order } from '../utils/mockData';
+import React, { useState, useEffect } from 'react';
+import { Typography, Card, message } from 'antd';
 import { OrderTable } from '../components/order/OrderTable';
 import { OrderDetailsDrawer } from '../components/order/OrderDetailsDrawer';
+import { orderService } from '../services/orderService';
 
 const { Title } = Typography;
 
 export const OrderPage: React.FC = () => {
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleViewDetails = (order: Order) => {
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await orderService.getOrders();
+      setOrders(data);
+    } catch (error) {
+      message.error("Lỗi khi tải danh sách Đơn hàng!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewDetails = (order: any) => {
     setSelectedOrder(order);
     setIsDrawerVisible(true);
   };
@@ -22,8 +39,8 @@ export const OrderPage: React.FC = () => {
         <Title level={2} style={{ margin: 0 }}>Quản lý Đơn hàng & Điều phối (Order & Routing)</Title>
       </div>
 
-      <Card variant='borderless' className="shadow-card" style={{ borderRadius: 12 }}>
-        <OrderTable orders={mockOrders} onViewDetails={handleViewDetails} />
+      <Card variant='borderless' className="shadow-card" style={{ borderRadius: 12 }} loading={loading}>
+        <OrderTable orders={orders} onViewDetails={handleViewDetails} />
       </Card>
 
       <OrderDetailsDrawer 

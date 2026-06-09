@@ -23,6 +23,10 @@ export const warehouseService = {
     return axiosClient.delete(`/api/Warehouse/${id}`);
   },
 
+  getOrderReservations: async (orderId: string): Promise<any[]> => {
+    return axiosClient.get(`/api/Warehouse/reservations/order/${orderId}`);
+  },
+
   // Tồn kho
   addInventory: async (warehouseId: string, data: { productId: string; quantity: number }): Promise<void> => {
     return axiosClient.post(`/api/Warehouse/${warehouseId}/inventory`, data);
