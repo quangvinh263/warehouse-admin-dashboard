@@ -214,7 +214,7 @@ export const OrderDetailsDrawer: React.FC<OrderDetailsDrawerProps> = ({ isVisibl
                     <List
                       size="small"
                       dataSource={routing.items}
-                      renderItem={(item: any) => (
+                      renderItem={(item) => (
                         <List.Item style={{ padding: '4px 0' }}>
                           Biên lai xuất: <Text strong>{item.quantity}</Text> x SP (ID: <Text strong className="text-primary">{item.productId}</Text>)
                         </List.Item>

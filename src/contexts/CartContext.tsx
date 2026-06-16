@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { OrderItemPayload } from '../../services/orderService';
+import type { OrderItemPayload } from '../services/orderService';
 
 interface CartContextType {
   cart: OrderItemPayload[];

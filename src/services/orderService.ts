@@ -9,6 +9,9 @@ export interface OrderItemPayload {
 
 export interface CreateOrderPayload {
   paymentMethod: string;
+  receiverName: string;
+  receiverPhone: string;
+  shippingAddress: string;
   items: OrderItemPayload[];
 }
 
@@ -27,5 +30,9 @@ export const orderService = {
 
   getOrderHistory: async (id: string): Promise<any> => {
     return axiosClient.get(`/api/Order/${id}/history`);
+  },
+
+  getOrderHistoryByAccount: async (): Promise<any[]> => {
+    return axiosClient.get(`/api/Order/account`);
   }
 };

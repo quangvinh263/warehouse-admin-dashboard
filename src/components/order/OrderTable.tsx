@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Tag, Button } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
-import type { Order } from '../../utils/mockData';
+import type { Order } from '../../types';
 
 interface OrderTableProps {
   orders: Order[];

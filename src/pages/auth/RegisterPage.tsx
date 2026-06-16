@@ -1,17 +1,42 @@
-import React from 'react';
-import { Card, Form, Input, Button, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Card, Form, Input, Button, Typography, message } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, LockOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
+import { authService } from '../../services/authService';
 
 const { Title, Text } = Typography;
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const onFinish = (values: any) => {
-    console.log('Register values:', values);
-    // Mock register success -> go to OTP page
-    navigate('/otp');
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      const res = await authService.signUp({
+        username: values.username,
+        fullName: values.username, // mock full name if not provided separately
+        email: values.email,
+        password: values.password,
+        phone: values.phone
+      });
+      
+      if (res.isSuccess) {
+        message.success(res.message || 'Đăng ký thành công!');
+        // Pass accountId to OTP page
+        navigate('/otp', { state: { accountId: res.data } });
+      } else {
+        message.error(res.message || 'Đăng ký thất bại');
+      }
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Lỗi kết nối đến máy chủ');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,7 +50,7 @@ export const RegisterPage: React.FC = () => {
         backdropFilter: 'blur(10px)',
         backgroundColor: 'rgba(255, 255, 255, 0.9)'
       }}
-      bordered={false}
+      variant="borderless"
     >
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <Title level={2} style={{ margin: 0, color: '#1677ff' }}>Tạo tài khoản</Title>
@@ -92,7 +117,7 @@ export const RegisterPage: React.FC = () => {
         </div>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block icon={<RightOutlined />} style={{ borderRadius: 8 }}>
+          <Button type="primary" htmlType="submit" block icon={<RightOutlined />} loading={loading} style={{ borderRadius: 8 }}>
             Đăng ký
           </Button>
         </Form.Item>

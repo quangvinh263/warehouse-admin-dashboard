@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Card, message } from 'antd';
-import { OrderTable } from '../components/order/OrderTable';
-import { OrderDetailsDrawer } from '../components/order/OrderDetailsDrawer';
-import { orderService } from '../services/orderService';
+import { OrderTable } from '../../components/order/OrderTable';
+import { OrderDetailsDrawer } from '../../components/order/OrderDetailsDrawer';
+import { orderService } from '../../services/orderService';
 
 const { Title } = Typography;
 

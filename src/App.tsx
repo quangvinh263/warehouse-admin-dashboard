@@ -4,15 +4,21 @@ import { ConfigProvider } from 'antd';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { StoreLayout } from './components/store/StoreLayout';
-import { CartProvider } from './components/store/CartContext';
-import { DashboardPage } from './pages/DashboardPage';
-import { CatalogPage } from './pages/CatalogPage';
-import { WarehousePage } from './pages/WarehousePage';
-import { OrderPage } from './pages/OrderPage';
-import { StorePage } from './pages/StorePage';
+import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { DashboardPage } from './pages/admin/DashboardPage';
+import { CatalogPage } from './pages/admin/CatalogPage';
+import { WarehousePage } from './pages/admin/WarehousePage';
+import { OrderPage } from './pages/admin/OrderPage';
+import { StorePage } from './pages/storefront/StorePage';
+import { AccountPage } from './pages/storefront/AccountPage';
+import { OrderHistoryPage } from './pages/storefront/OrderHistoryPage';
+import CheckoutPage from './pages/storefront/CheckoutPage';
 import { LoginPage } from './pages/auth/LoginPage';
+import { AdminLoginPage } from './pages/auth/AdminLoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { OtpPage } from './pages/auth/OtpPage';
+
 
 const App: React.FC = () => {
   return (
@@ -31,23 +37,29 @@ const App: React.FC = () => {
         }
       }}
     >
-      <CartProvider>
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-          <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
-          <Route path="/otp" element={<AuthLayout><OtpPage /></AuthLayout>} />
+      <AuthProvider>
+        <CartProvider>
+          <Routes>
+            {/* Auth Routes */}
+            <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+            <Route path="/admin-login" element={<AuthLayout><AdminLoginPage /></AuthLayout>} />
+            <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
+            <Route path="/otp" element={<AuthLayout><OtpPage /></AuthLayout>} />
 
-          {/* Storefront Routes (User UI) */}
-          <Route path="/shop" element={<StoreLayout><StorePage /></StoreLayout>} />
+            {/* Storefront Routes (User UI) */}
+            <Route path="/shop" element={<StoreLayout><StorePage /></StoreLayout>} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/orders" element={<OrderHistoryPage />} />
+            <Route path="/checkout" element={<StoreLayout><CheckoutPage /></StoreLayout>} />
 
-          {/* Dashboard / Admin Routes */}
-          <Route path="/" element={<AdminLayout><DashboardPage /></AdminLayout>} />
-          <Route path="/catalog" element={<AdminLayout><CatalogPage /></AdminLayout>} />
-          <Route path="/warehouse" element={<AdminLayout><WarehousePage /></AdminLayout>} />
-          <Route path="/order" element={<AdminLayout><OrderPage /></AdminLayout>} />
-        </Routes>
-      </CartProvider>
+            {/* Dashboard / Admin Routes */}
+            <Route path="/" element={<AdminLayout><DashboardPage /></AdminLayout>} />
+            <Route path="/catalog" element={<AdminLayout><CatalogPage /></AdminLayout>} />
+            <Route path="/warehouse" element={<AdminLayout><WarehousePage /></AdminLayout>} />
+            <Route path="/order" element={<AdminLayout><OrderPage /></AdminLayout>} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
     </ConfigProvider>
   );
 };

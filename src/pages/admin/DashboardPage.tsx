@@ -1,15 +1,15 @@
 import React from 'react';
 import { Col, Row, Typography } from 'antd';
-import { getChartData, mockInventory } from '../utils/mockData';
-import { StatisticCards } from '../components/dashboard/StatisticCards';
-import { OrderChart } from '../components/dashboard/OrderChart';
-import { LowStockTable } from '../components/dashboard/LowStockTable';
+import type { InventoryItem } from '../../types';
+import { StatisticCards } from '../../components/dashboard/StatisticCards';
+import { OrderChart } from '../../components/dashboard/OrderChart';
+import { LowStockTable } from '../../components/dashboard/LowStockTable';
 
 const { Title } = Typography;
 
 export const DashboardPage: React.FC = () => {
-  const chartData = getChartData();
-  const lowStockItems = mockInventory.filter(item => item.quantity <= 10);
+  const chartData: any[] = []; // FIXME: Fetch from API
+  const lowStockItems: InventoryItem[] = []; // FIXME: Fetch from API
 
   return (
     <div>

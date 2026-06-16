@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Button, message } from 'antd';
+import { Card, Typography, Button, message, Input } from 'antd';
 import { CheckCircleOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-
-// Note: If Ant Design is >= 5.10.0, there is an Input.OTP component.
-// Otherwise, we use a basic custom implementation or standard Input.
-// Assuming we have Input.OTP available as per standard recent antd.
-import { Input } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { authService } from '../../services/authService';
 
 const { Title, Text } = Typography;
 
 export const OtpPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const accountId = location.state?.accountId;
   const [countdown, setCountdown] = useState(60);
   const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!accountId) {
+      message.error('Không tìm thấy thông tin tài khoản!');
+      navigate('/register');
+    }
+  }, [accountId, navigate]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -24,19 +30,39 @@ export const OtpPage: React.FC = () => {
     }
   }, [countdown]);
 
-  const handleResend = () => {
-    setCountdown(60);
-    message.success('Đã gửi lại mã OTP!');
+  const handleResend = async () => {
+    try {
+      const res = await authService.resendOtp(accountId);
+      if (res.isSuccess) {
+        setCountdown(60);
+        message.success('Đã gửi lại mã OTP vào email của bạn!');
+      } else {
+        message.error(res.message || 'Lỗi gửi lại mã OTP');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Lỗi kết nối máy chủ');
+    }
   };
 
-  const onFinish = () => {
+  const onFinish = async () => {
     if (otp.length !== 6) {
       message.error('Vui lòng nhập đủ 6 số OTP!');
       return;
     }
-    console.log('OTP submitted:', otp);
-    message.success('Xác thực thành công!');
-    navigate('/login');
+    try {
+      setLoading(true);
+      const res = await authService.verifyOtp({ accountId, otp });
+      if (res.isSuccess) {
+        message.success('Xác thực thành công! Hãy đăng nhập.');
+        navigate('/login');
+      } else {
+        message.error(res.message || 'Mã OTP không hợp lệ');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Lỗi xác thực OTP');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Ant Design 5.10.0+ supports Input.OTP. If not, this might fallback gracefully or throw an error.
@@ -57,7 +83,7 @@ export const OtpPage: React.FC = () => {
         backdropFilter: 'blur(10px)',
         backgroundColor: 'rgba(255, 255, 255, 0.9)'
       }}
-      bordered={false}
+      variant="borderless"
     >
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <SafetyCertificateOutlined style={{ fontSize: 48, color: '#1677ff', marginBottom: 16 }} />
@@ -98,6 +124,7 @@ export const OtpPage: React.FC = () => {
         size="large" 
         icon={<CheckCircleOutlined />} 
         onClick={onFinish}
+        loading={loading}
         style={{ borderRadius: 8 }}
       >
         Xác nhận

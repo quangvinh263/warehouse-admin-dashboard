@@ -1,5 +1,5 @@
 import axiosClient from '../api/axiosClient';
-import type { Warehouse, InventoryItem } from '../utils/mockData'; 
+import type { Warehouse } from '../types'; 
 
 export const warehouseService = {
   // Kho bãi

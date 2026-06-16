@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Tag, Space, Button } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { Warehouse } from '../../utils/mockData';
+import type { Warehouse } from '../../types';
 
 interface WarehouseTableProps {
   warehouses: Warehouse[];

@@ -1,5 +1,5 @@
 import axiosClient from '../api/axiosClient';
-import type { Product } from '../utils/mockData'; // Đang mượn tạm Type từ file mock, sau này bạn nên tách Type ra folder riêng
+import type { Product } from '../types'; // Đang mượn tạm Type từ file mock, sau này bạn nên tách Type ra folder riêng
 
 export const catalogService = {
   // Lấy danh sách sản phẩm
@@ -30,5 +30,10 @@ export const catalogService = {
   deleteProduct: async (id: string): Promise<void> => {
     const url = `/api/Product/${id}`;
     return axiosClient.delete(url);
+  },
+
+  // Danh mục
+  getCategories: async (): Promise<any[]> => {
+    return axiosClient.get('/api/Category');
   }
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Table, Tag } from 'antd';
-import type { InventoryItem } from '../../utils/mockData';
+import type { InventoryItem } from '../../types';
 
 interface LowStockTableProps {
   data: InventoryItem[];

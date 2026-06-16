@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, InputNumber } from 'antd';
-import type { Warehouse } from '../../utils/mockData';
+import type { Warehouse } from '../../types';
 
 interface WarehouseModalFormProps {
   isVisible: boolean;

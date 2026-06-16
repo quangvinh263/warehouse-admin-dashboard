@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Typography, Card, message, Button, Modal, Form } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import type { Warehouse, InventoryItem } from '../utils/mockData';
-import { WarehouseTable } from '../components/warehouse/WarehouseTable';
-import { InventoryTable } from '../components/warehouse/InventoryTable';
-import { WarehouseModalForm } from '../components/warehouse/WarehouseModalForm';
-import { warehouseService } from '../services/warehouseService';
+import type { Warehouse, InventoryItem } from '../../types';
+import { WarehouseTable } from '../../components/warehouse/WarehouseTable';
+import { InventoryTable } from '../../components/warehouse/InventoryTable';
+import { WarehouseModalForm } from '../../components/warehouse/WarehouseModalForm';
+import { AddInventoryModal } from '../../components/warehouse/AddInventoryModal';
+import { warehouseService } from '../../services/warehouseService';
 
 const { Title } = Typography;
 
@@ -21,32 +22,49 @@ export const WarehousePage: React.FC = () => {
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
   const [form] = Form.useForm();
 
+  const [isAddInvVisible, setIsAddInvVisible] = useState(false);
+  const [invForm] = Form.useForm();
+
   useEffect(() => {
     fetchWarehouses();
   }, []);
+
+  useEffect(() => {
+    if (selectedWarehouse) {
+      fetchInventory(selectedWarehouse);
+    } else {
+      setInventory([]);
+    }
+  }, [selectedWarehouse]);
 
   const fetchWarehouses = async () => {
     try {
       const data = await warehouseService.getWarehouses();
       setWarehouses(data);
-      let allInventory: InventoryItem[] = [];
-      data.forEach((w: any) => {
-        if (w.inventories) {
-          w.inventories.forEach((inv: any) => {
-            allInventory.push({
-              id: inv.id || Math.random().toString(),
-              productId: inv.productId,
-              productName: inv.productName || inv.productId, 
-              warehouseId: w.id,
-              warehouseName: w.name,
-              quantity: inv.quantity
-            });
-          });
-        }
-      });
-      setInventory(allInventory);
     } catch (error) {
       message.error("Lỗi khi tải danh sách kho!");
+    }
+  };
+
+  const fetchInventory = async (warehouseId: string) => {
+    try {
+      const w = await warehouseService.getWarehouseById(warehouseId);
+      let invItems: InventoryItem[] = [];
+      if (w.inventories) {
+        w.inventories.forEach((inv: any) => {
+          invItems.push({
+            id: inv.id || Math.random().toString(),
+            productId: inv.productId,
+            productName: inv.productName || inv.productId, 
+            warehouseId: w.id,
+            warehouseName: w.name,
+            quantity: inv.quantity
+          });
+        });
+      }
+      setInventory(invItems);
+    } catch (error) {
+      message.error("Lỗi khi tải chi tiết tồn kho!");
     }
   };
 
@@ -99,6 +117,20 @@ export const WarehousePage: React.FC = () => {
     });
   };
 
+  const handleAddInvOk = (values: { warehouseId: string; productId: string; quantity: number }) => {
+    warehouseService.addInventory(values.warehouseId, { productId: values.productId, quantity: values.quantity })
+      .then(() => {
+        message.success('Nhập kho thành công!');
+        setIsAddInvVisible(false);
+        invForm.resetFields();
+        // Refresh inventory if the currently selected warehouse is the one we just added to
+        if (selectedWarehouse === values.warehouseId) {
+          fetchInventory(values.warehouseId);
+        }
+      })
+      .catch(() => message.error('Lỗi khi nhập kho!'));
+  };
+
   const filteredInventory = inventory.filter(item => {
     const matchName = item.productName?.toLowerCase().includes(searchText.toLowerCase()) || 
                       item.productId?.toLowerCase().includes(searchText.toLowerCase());
@@ -132,9 +164,14 @@ export const WarehousePage: React.FC = () => {
     <div>
       <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Title level={2} style={{ margin: 0 }}>Quản lý Kho & Tồn kho (Inventory Service)</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} size="large" style={{ borderRadius: 8 }}>
-          Thêm Kho bãi
-        </Button>
+        <div>
+          <Button type="default" onClick={() => setIsAddInvVisible(true)} size="large" style={{ borderRadius: 8, marginRight: 8 }}>
+            Nhập Tồn Kho
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} size="large" style={{ borderRadius: 8 }}>
+            Thêm Kho bãi
+          </Button>
+        </div>
       </div>
 
       <Card variant='borderless' className="shadow-card" style={{ borderRadius: 12 }}>
@@ -147,6 +184,14 @@ export const WarehousePage: React.FC = () => {
         onCancel={() => setIsModalVisible(false)}
         onOk={handleOk}
         form={form}
+      />
+
+      <AddInventoryModal
+        isVisible={isAddInvVisible}
+        warehouses={warehouses}
+        onCancel={() => setIsAddInvVisible(false)}
+        onOk={handleAddInvOk}
+        form={invForm}
       />
     </div>
   );

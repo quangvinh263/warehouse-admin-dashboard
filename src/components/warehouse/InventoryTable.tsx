@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Input, Select, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import type { InventoryItem, Warehouse } from '../../utils/mockData';
+import type { InventoryItem, Warehouse } from '../../types';
 
 interface InventoryTableProps {
   inventory: InventoryItem[];

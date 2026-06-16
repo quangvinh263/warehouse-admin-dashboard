@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Row, Col, Card, Typography, Button, message, Skeleton, Input, Select, Space, Tag } from 'antd';
+import { Row, Col, Card, Typography, Button, message, Skeleton, Input, Select, Tag } from 'antd';
 import { ShoppingCartOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
-import { catalogService } from '../services/catalogService';
-import type { Product } from '../utils/mockData';
-import { useCart } from '../components/store/CartContext';
+import { catalogService } from '../../services/catalogService';
+
+import { useCart } from '../../contexts/CartContext';
 
 const { Title, Text } = Typography;
 const { Meta } = Card;
@@ -45,7 +45,7 @@ export const StorePage: React.FC = () => {
 
   // Tính toán danh sách category duy nhất
   const categories = useMemo(() => {
-    const cats = new Set(products.map(p => p.categoryName || p.category));
+    const cats = new Set(products.map(p => p.categoryName || (p as any).category || p.categoryId));
     return ['all', ...Array.from(cats)].filter(Boolean);
   }, [products]);
 
@@ -53,7 +53,7 @@ export const StorePage: React.FC = () => {
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchCat = selectedCategory === 'all' || (p.categoryName || p.category) === selectedCategory;
+      const matchCat = selectedCategory === 'all' || (p.categoryName || (p as any).category || p.categoryId) === selectedCategory;
       return matchSearch && matchCat;
     });
   }, [products, searchTerm, selectedCategory]);
@@ -131,7 +131,7 @@ export const StorePage: React.FC = () => {
                   title={<span style={{ whiteSpace: 'normal', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: 44 }}>{product.name}</span>}
                   description={
                     <div>
-                      <Tag color="blue" style={{ marginBottom: 8 }}>{product.categoryName || product.category}</Tag>
+                      <Tag color="blue" style={{ marginBottom: 8 }}>{product.categoryName || (product as any).category || product.categoryId}</Tag>
                       <br />
                       <Text strong style={{ fontSize: 18, color: '#cf1322', display: 'block', marginBottom: 8 }}>${product.price}</Text>
                       <Typography.Paragraph 
