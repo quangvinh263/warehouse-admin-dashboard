@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Button, theme } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, InboxOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, InboxOutlined, ShoppingCartOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -12,7 +13,13 @@ interface AdminLayoutProps {
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin-login');
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -28,8 +35,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '24px' }}>
           <Button type="text" icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} style={{ fontSize: '16px', width: 64, height: 64 }} />
+          <Button type="primary" danger icon={<LogoutOutlined />} onClick={handleLogout}>Đăng xuất</Button>
         </Header>
         <Content style={{ margin: '24px 16px', padding: 24, minHeight: 280, background: colorBgContainer, borderRadius: borderRadiusLG }}>
           {children} 

@@ -1,5 +1,5 @@
 import axiosClient from '../api/axiosClient';
-import type { Warehouse, InventoryItem } from '../utils/mockData'; 
+import type { Warehouse } from '../types'; 
 
 export const warehouseService = {
   // Kho bãi
@@ -21,6 +21,10 @@ export const warehouseService = {
 
   deleteWarehouse: async (id: string): Promise<void> => {
     return axiosClient.delete(`/api/Warehouse/${id}`);
+  },
+
+  getOrderReservations: async (orderId: string): Promise<any[]> => {
+    return axiosClient.get(`/api/Warehouse/reservations/order/${orderId}`);
   },
 
   // Tồn kho

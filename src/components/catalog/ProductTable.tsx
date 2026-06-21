@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Button, Space, Image, Card } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { Product } from '../../utils/mockData';
+import type { Product } from '../../types';
 
 interface ProductTableProps {
   products: Product[];
@@ -32,8 +32,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({ products, onEdit, on
     },
     {
       title: 'Danh mục',
-      dataIndex: 'category',
-      key: 'category',
+      dataIndex: 'categoryName',
+      key: 'categoryName',
     },
     {
       title: 'Giá bán',

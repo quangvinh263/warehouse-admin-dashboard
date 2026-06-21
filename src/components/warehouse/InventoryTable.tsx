@@ -1,7 +1,7 @@
 import React from 'react';
-import { Table, Input, Select, Space } from 'antd';
+import { Table, Input, Select, Space, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import type { InventoryItem, Warehouse } from '../../utils/mockData';
+import type { InventoryItem, Warehouse } from '../../types';
 
 interface InventoryTableProps {
   inventory: InventoryItem[];
@@ -10,10 +10,11 @@ interface InventoryTableProps {
   setSearchText: (text: string) => void;
   selectedWarehouse: string | null;
   setSelectedWarehouse: (id: string | null) => void;
+  onDirectStockOut?: (inventory: InventoryItem) => void;
 }
 
 export const InventoryTable: React.FC<InventoryTableProps> = ({ 
-  inventory, warehouses, searchText, setSearchText, selectedWarehouse, setSelectedWarehouse 
+  inventory, warehouses, searchText, setSearchText, selectedWarehouse, setSelectedWarehouse, onDirectStockOut 
 }) => {
   const inventoryColumns = [
     {
@@ -46,6 +47,20 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         <span className={val <= 10 ? 'text-danger font-bold' : ''}>
           {val.toLocaleString()}
         </span>
+      ),
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      render: (_: any, record: InventoryItem) => (
+        <Button 
+          type="primary" 
+          danger 
+          size="small" 
+          onClick={() => onDirectStockOut && onDirectStockOut(record)}
+        >
+          Xuất kho
+        </Button>
       ),
     },
   ];

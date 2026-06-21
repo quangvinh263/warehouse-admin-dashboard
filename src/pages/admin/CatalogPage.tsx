@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Typography, Modal, Form, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import type { Product } from '../utils/mockData';
-import { ProductTable } from '../components/catalog/ProductTable';
-import { ProductModalForm } from '../components/catalog/ProductModalForm';
-import { catalogService } from '../services/catalogService';
+import type { Product } from '../../types';
+import { ProductTable } from '../../components/catalog/ProductTable';
+import { ProductModalForm } from '../../components/catalog/ProductModalForm';
+import { catalogService } from '../../services/catalogService';
 
 const { Title } = Typography;
 

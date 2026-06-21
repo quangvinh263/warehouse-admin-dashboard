@@ -1,7 +1,8 @@
-import React from 'react';
-import { Modal, Form, Input, InputNumber, Row, Col } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Input, InputNumber, Row, Col, Select } from 'antd';
 import type { FormInstance } from 'antd/es/form';
-import type { Product } from '../../utils/mockData';
+import type { Product } from '../../types';
+import { catalogService } from '../../services/catalogService';
 
 interface ProductModalFormProps {
   isVisible: boolean;
@@ -12,6 +13,18 @@ interface ProductModalFormProps {
 }
 
 export const ProductModalForm: React.FC<ProductModalFormProps> = ({ isVisible, editingProduct, onCancel, onOk, form }) => {
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isVisible) {
+      catalogService.getCategories().then(res => {
+        // The API returns an ApiResponse, so categories is probably in res.data or res
+        const data = (res as any).data || res;
+        setCategories(Array.isArray(data) ? data : []);
+      }).catch(console.error);
+    }
+  }, [isVisible]);
+
   return (
     <Modal
       title={editingProduct ? "Sửa Sản phẩm" : "Thêm Sản phẩm Mới"}
@@ -31,8 +44,12 @@ export const ProductModalForm: React.FC<ProductModalFormProps> = ({ isVisible, e
         </Form.Item>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item name="category" label="Danh mục" rules={[{ required: true, message: 'Vui lòng nhập danh mục!' }]}>
-              <Input placeholder="VD: Smartphone" />
+            <Form.Item name="categoryId" label="Danh mục" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}>
+              <Select placeholder="Chọn danh mục" showSearch optionFilterProp="children">
+                {categories.map(c => (
+                  <Select.Option key={c.id} value={c.id}>{c.name}</Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>
