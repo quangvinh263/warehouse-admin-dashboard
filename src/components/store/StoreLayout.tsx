@@ -88,10 +88,6 @@ export const StoreLayout: React.FC<{ children: React.ReactNode }> = ({ children 
               Đăng nhập
             </Button>
           )}
-
-          <Button type="text" style={{ marginLeft: 16 }} onClick={() => navigate('/')}>
-            Trang Admin
-          </Button>
         </div>
       </Header>
 
@@ -118,9 +114,9 @@ export const StoreLayout: React.FC<{ children: React.ReactNode }> = ({ children 
             >
               <List.Item.Meta
                 title={item.productName}
-                description={`Số lượng: ${item.quantity} x $${item.unitPrice}`}
+                description={`Số lượng: ${item.quantity} x $${(item.unitPrice || (item as any).price)}`}
               />
-              <div style={{ fontWeight: 'bold' }}>${item.quantity * item.unitPrice}</div>
+              <div style={{ fontWeight: 'bold' }}>${item.quantity * (item.unitPrice || (item as any).price)}</div>
             </List.Item>
           )}
         />

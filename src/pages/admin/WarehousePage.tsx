@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Typography, Card, message, Button, Modal, Form } from 'antd';
+import { Tabs, Typography, Card, message, Button, Modal, Form, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import type { Warehouse, InventoryItem } from '../../types';
 import { WarehouseTable } from '../../components/warehouse/WarehouseTable';
 import { InventoryTable } from '../../components/warehouse/InventoryTable';
 import { WarehouseModalForm } from '../../components/warehouse/WarehouseModalForm';
 import { AddInventoryModal } from '../../components/warehouse/AddInventoryModal';
+import { StockOutModal } from '../../components/warehouse/StockOutModal';
 import { warehouseService } from '../../services/warehouseService';
 
 const { Title } = Typography;
@@ -24,6 +25,10 @@ export const WarehousePage: React.FC = () => {
 
   const [isAddInvVisible, setIsAddInvVisible] = useState(false);
   const [invForm] = Form.useForm();
+
+  const [isStockOutVisible, setIsStockOutVisible] = useState(false);
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState<InventoryItem | null>(null);
+  const [stockOutLoading, setStockOutLoading] = useState(false);
 
   useEffect(() => {
     fetchWarehouses();
@@ -131,6 +136,31 @@ export const WarehousePage: React.FC = () => {
       .catch(() => message.error('Lỗi khi nhập kho!'));
   };
 
+  const handleStockOutClick = (item: InventoryItem) => {
+    setSelectedInventoryItem(item);
+    setIsStockOutVisible(true);
+  };
+
+  const handleStockOutSubmit = async (values: { quantity: number; reason: string }) => {
+    if (!selectedInventoryItem) return;
+    setStockOutLoading(true);
+    try {
+      await warehouseService.directStockOut(selectedInventoryItem.warehouseId, {
+        productId: selectedInventoryItem.productId,
+        quantity: values.quantity,
+        reason: values.reason,
+      });
+      message.success('Xuất kho thành công!');
+      setIsStockOutVisible(false);
+      // Refresh inventory
+      fetchInventory(selectedWarehouse!);
+    } catch (error) {
+      message.error('Lỗi khi xuất kho!');
+    } finally {
+      setStockOutLoading(false);
+    }
+  };
+
   const filteredInventory = inventory.filter(item => {
     const matchName = item.productName?.toLowerCase().includes(searchText.toLowerCase()) || 
                       item.productId?.toLowerCase().includes(searchText.toLowerCase());
@@ -155,43 +185,52 @@ export const WarehousePage: React.FC = () => {
           setSearchText={setSearchText}
           selectedWarehouse={selectedWarehouse}
           setSelectedWarehouse={setSelectedWarehouse}
+          onDirectStockOut={handleStockOutClick}
         />
       ),
     },
   ];
 
   return (
-    <div>
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={2} style={{ margin: 0 }}>Quản lý Kho & Tồn kho (Inventory Service)</Title>
-        <div>
-          <Button type="default" onClick={() => setIsAddInvVisible(true)} size="large" style={{ borderRadius: 8, marginRight: 8 }}>
-            Nhập Tồn Kho
-          </Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} size="large" style={{ borderRadius: 8 }}>
+    <div style={{ padding: '0 24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={2} style={{ margin: 0 }}>Quản lý Kho bãi</Title>
+        <Space>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
             Thêm Kho bãi
           </Button>
-        </div>
+          <Button type="default" onClick={() => setIsAddInvVisible(true)}>
+            Nhập hàng
+          </Button>
+        </Space>
       </div>
 
-      <Card variant='borderless' className="shadow-card" style={{ borderRadius: 12 }}>
+      <Card bordered={false} style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)' }}>
         <Tabs defaultActiveKey="1" items={items} />
       </Card>
 
       <WarehouseModalForm 
         isVisible={isModalVisible}
         editingWarehouse={editingWarehouse}
+        form={form}
         onCancel={() => setIsModalVisible(false)}
         onOk={handleOk}
-        form={form}
       />
 
       <AddInventoryModal
         isVisible={isAddInvVisible}
+        form={invForm}
         warehouses={warehouses}
         onCancel={() => setIsAddInvVisible(false)}
         onOk={handleAddInvOk}
-        form={invForm}
+      />
+
+      <StockOutModal
+        isVisible={isStockOutVisible}
+        inventory={selectedInventoryItem}
+        onCancel={() => setIsStockOutVisible(false)}
+        onSubmit={handleStockOutSubmit}
+        confirmLoading={stockOutLoading}
       />
     </div>
   );

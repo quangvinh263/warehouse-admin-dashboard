@@ -80,7 +80,7 @@ const CheckoutPage: React.FC = () => {
       setLoading(true);
       const fullAddress = formatAddress(selectedAddress);
 
-      const EXCHANGE_RATE = 25400; // 1 USD = 25400 VND
+      const EXCHANGE_RATE = 1000; // 1 USD = 1000 VND (Hạ tỷ giá để lọt vào Sandbox ZaloPay)
       const convertedCart = cart.map(item => ({
         ...item,
         unitPrice: Math.round(item.unitPrice * EXCHANGE_RATE)
@@ -210,7 +210,7 @@ const CheckoutPage: React.FC = () => {
               <Divider />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                 <Text>Tạm tính ({totalItems} sp):</Text>
-                <Text>{Math.round(totalAmount * 25400).toLocaleString('vi-VN')} ₫</Text>
+                <Text>{Math.round(totalAmount * 1000).toLocaleString('vi-VN')} ₫</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                 <Text>Phí giao hàng:</Text>
@@ -219,7 +219,7 @@ const CheckoutPage: React.FC = () => {
               <Divider />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                 <Text strong style={{ fontSize: 18 }}>Tổng cộng:</Text>
-                <Text strong style={{ fontSize: 20, color: '#f5222d' }}>{Math.round(totalAmount * 25400).toLocaleString('vi-VN')} ₫</Text>
+                <Text strong style={{ fontSize: 20, color: '#f5222d' }}>{Math.round(totalAmount * 1000).toLocaleString('vi-VN')} ₫</Text>
               </div>
 
               <Button

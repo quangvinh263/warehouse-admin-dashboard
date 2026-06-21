@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, List, Tag, Spin, message, Button, Collapse } from 'antd';
+import { Card, Typography, List, Tag, Spin, message, Button, Collapse, Space } from 'antd';
 import { ShoppingOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { StoreLayout } from '../../components/store/StoreLayout';
 import { orderService } from '../../services/orderService';
@@ -36,13 +36,41 @@ export const OrderHistoryPage: React.FC = () => {
     }
   };
 
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      await orderService.cancelOrder(orderId);
+      message.success('Đã gửi yêu cầu hủy đơn hàng thành công');
+      fetchOrders();
+    } catch (error) {
+      message.error('Lỗi khi hủy đơn hàng');
+    }
+  };
+
+  const handleRetryPayment = async (orderId: string) => {
+    try {
+      message.info('Đang tạo link thanh toán mới...');
+      const res = await orderService.retryPayment(orderId);
+      if (res?.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        message.error('Không tìm thấy link thanh toán mới');
+      }
+    } catch (error) {
+      message.error('Lỗi khi tạo link thanh toán mới');
+    }
+  };
+
   const getStatusTag = (status: string) => {
     switch (status) {
-      case 'Pending': return <Tag color="processing">Đang xử lý</Tag>;
-      case 'Confirmed': return <Tag color="blue">Đã xác nhận</Tag>;
-      case 'Shipped': return <Tag color="purple">Đang giao hàng</Tag>;
-      case 'Delivered': return <Tag color="success">Đã giao</Tag>;
-      case 'Cancelled': return <Tag color="error">Đã hủy</Tag>;
+      case 'Pending': return <Tag color="processing">ĐANG XỬ LÝ</Tag>;
+      case 'AwaitingPayment': return <Tag color="warning">CHỜ THANH TOÁN</Tag>;
+      case 'Paid': return <Tag color="success">ĐÃ THANH TOÁN</Tag>;
+      case 'Confirmed': return <Tag color="blue">ĐÃ XÁC NHẬN</Tag>;
+      case 'Shipped': return <Tag color="purple">ĐANG GIAO HÀNG</Tag>;
+      case 'Delivered': return <Tag color="success">ĐÃ GIAO</Tag>;
+      case 'Completed': return <Tag color="success">HOÀN THÀNH</Tag>;
+      case 'Failed': return <Tag color="error">THẤT BẠI</Tag>;
+      case 'Cancelled': return <Tag color="error">ĐÃ HỦY</Tag>;
       default: return <Tag color="default">{status}</Tag>;
     }
   };
@@ -93,11 +121,18 @@ export const OrderHistoryPage: React.FC = () => {
                   />
                   <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between' }}>
                     <Text type="secondary">Phương thức thanh toán: {order.paymentMethod || 'ZaloPay'}</Text>
-                    {order.status === 'Pending' && (
-                      <Button danger type="primary" size="small" onClick={() => {/* Handle Cancel */}}>
-                        Hủy đơn hàng
-                      </Button>
-                    )}
+                    <Space>
+                      {(order.status === 'Pending' || order.status === 'AwaitingPayment') && (
+                        <Button danger type="primary" size="small" onClick={() => handleCancelOrder(order.id)}>
+                          Hủy đơn hàng
+                        </Button>
+                      )}
+                      {order.status === 'AwaitingPayment' && order.paymentMethod === 'ZaloPay' && (
+                        <Button type="primary" size="small" onClick={() => handleRetryPayment(order.id)}>
+                          Thanh toán ngay
+                        </Button>
+                      )}
+                    </Space>
                   </div>
                   {(order.receiverName || order.shippingAddress) && (
                     <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>

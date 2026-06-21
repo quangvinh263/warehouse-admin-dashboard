@@ -47,6 +47,7 @@ export const OrderPage: React.FC = () => {
         isVisible={isDrawerVisible} 
         selectedOrder={selectedOrder} 
         onClose={() => setIsDrawerVisible(false)} 
+        onUpdate={fetchOrders}
       />
     </div>
   );

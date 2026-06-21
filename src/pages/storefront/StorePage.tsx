@@ -49,14 +49,23 @@ export const StorePage: React.FC = () => {
     return ['all', ...Array.from(cats)].filter(Boolean);
   }, [products]);
 
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('all');
+
   // Lọc sản phẩm
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchCat = selectedCategory === 'all' || (p.categoryName || (p as any).category || p.categoryId) === selectedCategory;
-      return matchSearch && matchCat;
+      
+      const price = parseFloat(p.price);
+      let matchPrice = true;
+      if (selectedPriceRange === 'under500') matchPrice = price < 500;
+      else if (selectedPriceRange === '500-1000') matchPrice = price >= 500 && price <= 1000;
+      else if (selectedPriceRange === 'over1000') matchPrice = price > 1000;
+
+      return matchSearch && matchCat && matchPrice;
     });
-  }, [products, searchTerm, selectedCategory]);
+  }, [products, searchTerm, selectedCategory, selectedPriceRange]);
 
   return (
     <div>
@@ -69,7 +78,7 @@ export const StorePage: React.FC = () => {
 
       <Card style={{ marginBottom: 24, borderRadius: 12, backgroundColor: '#fafafa' }} bordered={false}>
         <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={12}>
+          <Col xs={24} md={8}>
             <Search 
               placeholder="Tìm kiếm tên sản phẩm..." 
               allowClear 
@@ -79,20 +88,37 @@ export const StorePage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Col>
-          <Col xs={24} md={12} style={{ display: 'flex', alignItems: 'center' }}>
-            <FilterOutlined style={{ marginRight: 8, fontSize: 18, color: '#8c8c8c' }} />
-            <Text strong style={{ marginRight: 16 }}>Lọc theo Danh mục:</Text>
-            <Select 
-              value={selectedCategory}
-              size="large"
-              style={{ width: 200 }}
-              onChange={(value) => setSelectedCategory(value)}
-            >
-              <Option value="all">Tất cả sản phẩm</Option>
-              {categories.filter(c => c !== 'all').map(cat => (
-                <Option key={cat as string} value={cat}>{cat}</Option>
-              ))}
-            </Select>
+          <Col xs={24} md={16} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FilterOutlined style={{ marginRight: 8, fontSize: 18, color: '#8c8c8c' }} />
+              <Text strong style={{ marginRight: 8 }}>Danh mục:</Text>
+              <Select 
+                value={selectedCategory}
+                size="large"
+                style={{ width: 160 }}
+                onChange={(value) => setSelectedCategory(value)}
+              >
+                <Option value="all">Tất cả</Option>
+                {categories.filter(c => c !== 'all').map(cat => (
+                  <Option key={cat as string} value={cat}>{cat}</Option>
+                ))}
+              </Select>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Text strong style={{ marginRight: 8 }}>Giá:</Text>
+              <Select 
+                value={selectedPriceRange}
+                size="large"
+                style={{ width: 160 }}
+                onChange={(value) => setSelectedPriceRange(value)}
+              >
+                <Option value="all">Tất cả mức giá</Option>
+                <Option value="under500">Dưới $500</Option>
+                <Option value="500-1000">$500 - $1000</Option>
+                <Option value="over1000">Trên $1000</Option>
+              </Select>
+            </div>
           </Col>
         </Row>
       </Card>
