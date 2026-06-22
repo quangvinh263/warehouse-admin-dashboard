@@ -198,20 +198,7 @@ export const OrderDetailsDrawer: React.FC<OrderDetailsDrawerProps> = ({ isVisibl
     return item ? item.productName : `SP (ID: ${productId})`;
   };
 
-  const getStatusTag = (status: string) => {
-    switch (status) {
-      case 'Pending': return <Tag color="processing">ĐANG XỬ LÝ</Tag>;
-      case 'AwaitingPayment': return <Tag color="warning">CHỜ THANH TOÁN</Tag>;
-      case 'Paid': return <Tag color="success">ĐÃ THANH TOÁN</Tag>;
-      case 'Confirmed': return <Tag color="blue">ĐÃ XÁC NHẬN</Tag>;
-      case 'Shipped': return <Tag color="purple">ĐANG GIAO HÀNG</Tag>;
-      case 'Delivered': return <Tag color="success">ĐÃ GIAO</Tag>;
-      case 'Completed': return <Tag color="success">HOÀN THÀNH</Tag>;
-      case 'Failed': return <Tag color="error">THẤT BẠI</Tag>;
-      case 'Cancelled': return <Tag color="error">ĐÃ HỦY</Tag>;
-      default: return <Tag>{status}</Tag>;
-    }
-  };
+  // Unused helper: getStatusTag removed to prevent compiler warnings
 
   const handleStatusChange = async (newStatus: string) => {
     try {
@@ -324,7 +311,7 @@ export const OrderDetailsDrawer: React.FC<OrderDetailsDrawerProps> = ({ isVisibl
                     <List
                       size="small"
                       dataSource={routing.items}
-                      renderItem={(item) => (
+                      renderItem={(item: any) => (
                         <List.Item style={{ padding: '4px 0' }}>
                           Biên lai xuất: <Text strong>{item.quantity}</Text> x <Text strong className="text-primary">{getProductName(item.productId)}</Text>
                         </List.Item>
@@ -343,7 +330,7 @@ export const OrderDetailsDrawer: React.FC<OrderDetailsDrawerProps> = ({ isVisibl
             <Card bordered={false} style={{ backgroundColor: '#fafafa', borderRadius: 8 }}>
               <Timeline
                 mode="left"
-                items={sagaTimeline.map((step, idx) => ({
+                items={sagaTimeline.map((step) => ({
                   label: step.time ? <Text type="secondary">{new Date(step.time).toLocaleString()}</Text> : null,
                   dot: getSagaIcon(step.status),
                   children: (
