@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Card, Form, Input, Button, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../contexts/AuthContext';
+import { ForgotPasswordModal } from './ForgotPasswordModal';
 
 const { Title, Text } = Typography;
 
@@ -11,6 +12,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [forgotModalVisible, setForgotModalVisible] = useState(false);
 
   const onFinish = async (values: any) => {
     try {
@@ -78,6 +80,10 @@ export const LoginPage: React.FC = () => {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
           <Link to="/register">Tạo tài khoản mới</Link>
+          <a onClick={() => setForgotModalVisible(true)} style={{ color: '#1677ff' }}>Quên mật khẩu?</a>
+        </div>
+        
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <Link to="/admin-login" style={{ color: '#ff4d4f' }}>Đăng nhập Admin</Link>
         </div>
 
@@ -87,6 +93,11 @@ export const LoginPage: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
+      
+      <ForgotPasswordModal 
+        visible={forgotModalVisible} 
+        onCancel={() => setForgotModalVisible(false)} 
+      />
     </Card>
   );
 };

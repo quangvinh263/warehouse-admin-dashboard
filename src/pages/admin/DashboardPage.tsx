@@ -14,16 +14,19 @@ export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [ordersData, warehousesData] = await Promise.all([
+      const [ordersData, warehousesData, lowStockData] = await Promise.all([
         orderService.getOrders(),
-        warehouseService.getWarehouses()
+        warehouseService.getWarehouses(),
+        warehouseService.getLowStockItems(15)
       ]);
       setOrders(ordersData || []);
       setWarehouses(warehousesData || []);
+      setLowStockItems(lowStockData || []);
     } catch (error) {
       console.error(error);
       message.error("Lỗi khi tải dữ liệu thống kê Dashboard!");
@@ -44,8 +47,10 @@ export const DashboardPage: React.FC = () => {
 
   const todayOrders = orders.filter(o => {
     if (!o.createdAt) return false;
-    // Cắt chuỗi ISO "YYYY-MM-DDThh:mm:ss" thành "YYYY-MM-DD"
-    return o.createdAt.split('T')[0] === todayStr;
+    const orderDate = new Date(o.createdAt);
+    return orderDate.getFullYear() === today.getFullYear() &&
+           orderDate.getMonth() === today.getMonth() &&
+           orderDate.getDate() === today.getDate();
   });
 
   const todayOrdersCount = todayOrders.length;
@@ -57,46 +62,29 @@ export const DashboardPage: React.FC = () => {
   // 2. Tổng số lượng tồn kho
   let totalInventory = 0;
   warehouses.forEach((w: any) => {
-    if (w.inventories) {
-      w.inventories.forEach((inv: any) => {
-        totalInventory += (inv.quantity || 0);
-      });
-    }
+    totalInventory += (w.currentStock || 0);
   });
 
   // 3. Số đơn hàng chờ xử lý
   const pendingOrdersCount = orders.filter(o => o.status === 'PENDING').length;
 
   // 4. Danh sách cảnh báo hết hàng (Low Stock Items)
-  const lowStockItems: InventoryItem[] = [];
-  warehouses.forEach((w: any) => {
-    if (w.inventories) {
-      w.inventories.forEach((inv: any) => {
-        if (inv.quantity < 15) {
-          lowStockItems.push({
-            id: inv.id || `${w.id}-${inv.productId}`,
-            productId: inv.productId,
-            productName: inv.productName || inv.productId,
-            warehouseId: w.id,
-            warehouseName: w.name,
-            quantity: inv.quantity
-          });
-        }
-      });
-    }
-  });
 
   // 5. Thống kê 7 ngày qua cho biểu đồ
   const chartData: any[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(today.getDate() - i);
-    const dateStr = d.getFullYear() + '-' + 
-                    String(d.getMonth() + 1).padStart(2, '0') + '-' + 
-                    String(d.getDate()).padStart(2, '0');
     const dateLabel = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 
-    const dayOrders = orders.filter(o => o.createdAt && o.createdAt.split('T')[0] === dateStr);
+    const dayOrders = orders.filter(o => {
+      if (!o.createdAt) return false;
+      const oDate = new Date(o.createdAt);
+      return oDate.getFullYear() === d.getFullYear() &&
+             oDate.getMonth() === d.getMonth() &&
+             oDate.getDate() === d.getDate();
+    });
+    
     const dayRevenue = dayOrders
       .filter(o => o.status !== 'CANCELED')
       .reduce((sum, o) => sum + (o.totalAmount || 0), 0);

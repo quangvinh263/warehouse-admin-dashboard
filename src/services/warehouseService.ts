@@ -38,5 +38,9 @@ export const warehouseService = {
 
   transferInventory: async (warehouseId: string, data: { toWarehouseId: string; productId: string; quantity: number }): Promise<void> => {
     return axiosClient.post(`/api/Warehouse/${warehouseId}/transfer`, data);
+  },
+
+  getLowStockItems: async (threshold: number = 15): Promise<any[]> => {
+    return axiosClient.get(`/api/Warehouse/low-stock?threshold=${threshold}`);
   }
 };

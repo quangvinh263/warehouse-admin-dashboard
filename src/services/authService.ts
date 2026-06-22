@@ -26,5 +26,25 @@ export const authService = {
   signOut: async (refreshToken: string) => {
     const response = await axios.post(`${API_URL}/signout?refreshToken=${refreshToken}`);
     return response.data;
+  },
+
+  resetPasswordRequest: async (email: string) => {
+    const response = await axios.post(`${API_URL}/reset-password-request?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+
+  verifyResetOtp: async (data: { accountId: string; otp: string }) => {
+    const response = await axios.post(`${API_URL}/verify-reset-otp`, data);
+    return response.data;
+  },
+
+  resendResetOtp: async (accountId: string) => {
+    const response = await axios.post(`${API_URL}/resend-reset-otp?accountId=${accountId}`);
+    return response.data;
+  },
+
+  resetPassword: async (data: { accountId: string; password: string }) => {
+    const response = await axios.post(`${API_URL}/reset-password`, data);
+    return response.data;
   }
 };
