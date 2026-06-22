@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Select, message } from 'antd';
+import { Modal, Form, InputNumber, Select, message } from 'antd';
 import type { Warehouse } from '../../types';
 import { catalogService } from '../../services/catalogService';
 

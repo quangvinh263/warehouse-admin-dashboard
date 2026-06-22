@@ -13,6 +13,7 @@ export interface Warehouse {
   address: string;
   capacity: number;
   currentStock: number;
+  inventories?: any[];
 }
 
 export interface InventoryItem {
