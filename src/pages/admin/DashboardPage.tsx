@@ -55,8 +55,10 @@ export const DashboardPage: React.FC = () => {
 
   const todayOrdersCount = todayOrders.length;
 
+  const validRevenueStatuses = ['Paid', 'Confirmed', 'Shipped', 'Delivered', 'Completed'];
+
   const todayRevenue = todayOrders
-    .filter(o => o.status !== 'CANCELED' && o.status !== 'PENDING') // Chỉ tính đơn thành công hoặc đã xác nhận
+    .filter(o => validRevenueStatuses.includes(o.status)) // Chỉ tính doanh thu các đơn đã thanh toán hoặc thành công
     .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
   // 2. Tổng số lượng tồn kho
@@ -86,7 +88,7 @@ export const DashboardPage: React.FC = () => {
     });
     
     const dayRevenue = dayOrders
-      .filter(o => o.status !== 'CANCELED')
+      .filter(o => validRevenueStatuses.includes(o.status))
       .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
     chartData.push({
